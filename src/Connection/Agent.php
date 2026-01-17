@@ -26,7 +26,6 @@ use Fusio\Engine\Exception\ConfigurationException;
 use Fusio\Engine\Form\BuilderInterface;
 use Fusio\Engine\Form\ElementFactoryInterface;
 use Fusio\Engine\ParametersInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\AI\Agent\Agent as SymfonyAgent;
 use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Agent\Exception\ExceptionInterface;
@@ -47,10 +46,6 @@ use Symfony\AI\Platform\ModelCatalog\ModelCatalogInterface;
  */
 class Agent extends ConnectionAbstract implements PingableInterface
 {
-    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
-    {
-    }
-
     public function getName(): string
     {
         return 'Agent';
@@ -77,10 +72,10 @@ class Agent extends ConnectionAbstract implements PingableInterface
         }
 
         $platform = match ($config->get('platform')) {
-            'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            'ollama' => Ollama\PlatformFactory::create(hostUrl: $url, eventDispatcher: $this->eventDispatcher),
-            default => OpenAi\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey),
+            'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey),
+            'ollama' => Ollama\PlatformFactory::create(hostUrl: $url),
+            default => OpenAi\PlatformFactory::create(apiKey: $apiKey),
         };
 
         return new SymfonyAgent($platform, $model);
