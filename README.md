@@ -1,7 +1,7 @@
 Fusio-Adapter-Ai
 =====
 
-[Fusio] adapter which provides connections to multiple AI platforms based in the
+[Fusio] adapter which provides connections to multiple AI platforms based on the
 [Symfony AI components](https://github.com/symfony/ai-platform). You can install
 the adapter with the following steps inside your Fusio project:
 
