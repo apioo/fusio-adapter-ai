@@ -37,7 +37,6 @@ use Symfony\AI\Platform\Bridge\OpenAi;
 use Symfony\AI\Platform\Message\Message;
 use Symfony\AI\Platform\Message\MessageBag;
 use Symfony\AI\Platform\ModelCatalog\ModelCatalogInterface;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 /**
  * Agent
@@ -48,7 +47,7 @@ use Symfony\Contracts\HttpClient\HttpClientInterface;
  */
 class Agent extends ConnectionAbstract implements PingableInterface
 {
-    public function __construct(private readonly HttpClientInterface $httpClient, private readonly EventDispatcherInterface $eventDispatcher)
+    public function __construct(private readonly EventDispatcherInterface $eventDispatcher)
     {
     }
 
@@ -78,10 +77,10 @@ class Agent extends ConnectionAbstract implements PingableInterface
         }
 
         $platform = match ($config->get('platform')) {
-            'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
-            'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
-            'ollama' => Ollama\PlatformFactory::create(hostUrl: $url, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
-            default => OpenAi\PlatformFactory::create(apiKey: $apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
+            'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            'ollama' => Ollama\PlatformFactory::create(hostUrl: $url, eventDispatcher: $this->eventDispatcher),
+            default => OpenAi\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
         };
 
         return new SymfonyAgent($platform, $model);
