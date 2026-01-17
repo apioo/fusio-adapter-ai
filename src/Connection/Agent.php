@@ -60,20 +60,28 @@ class Agent extends ConnectionAbstract implements PingableInterface
     public function getConnection(ParametersInterface $config): AgentInterface
     {
         $apiKey = $config->get('api_key');
-        if (empty($apiKey)) {
-            throw new ConfigurationException('Provided no api key');
-        }
+        $url = $config->get('url');
 
         $model = $config->get('model');
         if (empty($model)) {
             throw new ConfigurationException('Provided no model');
         }
 
+        $platform = $config->get('platform');
+        $needsApiKey = !in_array($platform, ['ollama'], true);
+        if ($needsApiKey && empty($apiKey)) {
+            throw new ConfigurationException('Provided no api key');
+        }
+
+        if (!$needsApiKey && empty($url)) {
+            throw new ConfigurationException('Provided no url');
+        }
+
         $platform = match ($config->get('platform')) {
-            'anthropic' => Anthropic\PlatformFactory::create($apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
-            'gemini' => Gemini\PlatformFactory::create($apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
-            'ollama' => Ollama\PlatformFactory::create($apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
-            default => OpenAi\PlatformFactory::create($apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
+            'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
+            'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
+            'ollama' => Ollama\PlatformFactory::create(hostUrl: $url, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
+            default => OpenAi\PlatformFactory::create(apiKey: $apiKey, httpClient: $this->httpClient, eventDispatcher: $this->eventDispatcher),
         };
 
         return new SymfonyAgent($platform, $model);
@@ -100,6 +108,7 @@ class Agent extends ConnectionAbstract implements PingableInterface
         $builder->add($elementFactory->newSelect('type', 'Type', $types, 'The agent type'));
         $builder->add($elementFactory->newSelect('model', 'Model', $models, 'The selected model'));
         $builder->add($elementFactory->newInput('api_key', 'Password', 'password', 'The API key'));
+        $builder->add($elementFactory->newInput('url', 'Url', 'text', 'For Ollama provide an url of the host i.e. http://localhost:11434'));
     }
 
     public function ping(mixed $connection): bool
