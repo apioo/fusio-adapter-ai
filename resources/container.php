@@ -1,7 +1,7 @@
 <?php
 
+use Fusio\Adapter\Ai\Connection\Agent;
 use Fusio\Engine\Adapter\ServiceBuilder;
-use Symfony\AI\Agent\Agent;
 use Symfony\Component\DependencyInjection\Loader\Configurator\ContainerConfigurator;
 
 return static function (ContainerConfigurator $container) {
