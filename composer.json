@@ -1,0 +1,38 @@
+{
+  "name": "fusio/adapter-ai",
+  "description": "Provides connections to multiple AI platforms",
+  "homepage": "https://www.fusio-project.org",
+  "keywords": ["fusio-adapter"],
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "Christoph Kappestein",
+      "email": "christoph.kappestein@gmail.com",
+      "homepage": "https://chrisk.app"
+    }
+  ],
+  "require": {
+    "php": ">=8.1",
+    "fusio/engine": "^6.0",
+    "symfony/ai-platform": "^0.2",
+    "symfony/ai-anthropic-platform": "^0.2.0",
+    "symfony/ai-gemini-platform": "^0.2.0",
+    "symfony/ai-ollama-platform": "^0.2.0",
+    "symfony/ai-open-ai-platform": "^0.2.0",
+    "symfony/ai-agent": "^0.2.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^12.0",
+    "phpstan/phpstan": "^2.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Fusio\\Adapter\\Ai\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Fusio\\Adapter\\Ai\\Tests\\": "tests/"
+    }
+  }
+}
