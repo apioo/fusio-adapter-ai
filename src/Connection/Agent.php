@@ -20,6 +20,7 @@
 
 namespace Fusio\Adapter\Ai\Connection;
 
+use Fusio\Engine\Agent\ToolsInterface;
 use Fusio\Engine\Connection\PingableInterface;
 use Fusio\Engine\ConnectionAbstract;
 use Fusio\Engine\Exception\ConfigurationException;
@@ -29,6 +30,8 @@ use Fusio\Engine\ParametersInterface;
 use Symfony\AI\Agent\Agent as SymfonyAgent;
 use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Agent\Exception\ExceptionInterface;
+use Symfony\AI\Agent\Toolbox\AgentProcessor;
+use Symfony\AI\Agent\Toolbox\ToolboxInterface;
 use Symfony\AI\Platform\Bridge\Anthropic;
 use Symfony\AI\Platform\Bridge\Gemini;
 use Symfony\AI\Platform\Bridge\Ollama;
@@ -46,6 +49,10 @@ use Symfony\AI\Platform\ModelCatalog\ModelCatalogInterface;
  */
 class Agent extends ConnectionAbstract implements PingableInterface
 {
+    public function __construct(private ToolsInterface $tools)
+    {
+    }
+
     public function getName(): string
     {
         return 'Agent';
@@ -78,7 +85,13 @@ class Agent extends ConnectionAbstract implements PingableInterface
             default => OpenAi\PlatformFactory::create(apiKey: $apiKey),
         };
 
-        return new SymfonyAgent($platform, $model);
+        if ($this->tools instanceof ToolboxInterface) {
+            $toolProcessor = new AgentProcessor($this->tools);
+
+            return new SymfonyAgent($platform, $model, inputProcessors: [$toolProcessor], outputProcessors: [$toolProcessor]);
+        } else {
+            return new SymfonyAgent($platform, $model);
+        }
     }
 
     public function configure(BuilderInterface $builder, ElementFactoryInterface $elementFactory): void
