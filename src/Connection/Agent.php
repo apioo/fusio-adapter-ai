@@ -85,8 +85,9 @@ class Agent extends ConnectionAbstract implements PingableInterface
             default => OpenAi\PlatformFactory::create(apiKey: $apiKey),
         };
 
-        if ($this->tools instanceof ToolboxInterface) {
-            $toolProcessor = new AgentProcessor($this->tools);
+        $toolbox = $this->tools->resolve();
+        if ($toolbox instanceof ToolboxInterface) {
+            $toolProcessor = new AgentProcessor($toolbox);
 
             return new SymfonyAgent($platform, $model, inputProcessors: [$toolProcessor], outputProcessors: [$toolProcessor]);
         } else {
