@@ -38,7 +38,6 @@ use Symfony\AI\Platform\Bridge\Ollama;
 use Symfony\AI\Platform\Bridge\OpenAi;
 use Symfony\AI\Platform\Message\Message;
 use Symfony\AI\Platform\Message\MessageBag;
-use Symfony\AI\Platform\ModelCatalog\ModelCatalogInterface;
 
 /**
  * Agent
