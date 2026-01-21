@@ -68,17 +68,20 @@ class Agent extends ConnectionAbstract implements PingableInterface
             throw new ConfigurationException('Provided no model');
         }
 
-        $platform = $config->get('platform');
-        $needsApiKey = !in_array($platform, ['ollama'], true);
-        if ($needsApiKey && empty($apiKey)) {
-            throw new ConfigurationException('Provided no api key');
+        $type = $config->get('type');
+
+        $needsApiKey = $type !== 'ollama';
+        if ($needsApiKey) {
+            if (empty($apiKey)) {
+                throw new ConfigurationException('Provided no api key');
+            }
+        } else {
+            if (empty($url)) {
+                throw new ConfigurationException('Provided no url');
+            }
         }
 
-        if (!$needsApiKey && empty($url)) {
-            throw new ConfigurationException('Provided no url');
-        }
-
-        $platform = match ($config->get('platform')) {
+        $platform = match ($type) {
             'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey),
             'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey),
             'ollama' => Ollama\PlatformFactory::create(hostUrl: $url),
@@ -104,17 +107,8 @@ class Agent extends ConnectionAbstract implements PingableInterface
             'chatgpt'   => 'ChatGPT',
         ];
 
-        $models = [];
-        foreach ($types as $type => $name) {
-            $modelCatalog = $this->getModelCatalog($type);
-
-            foreach ($modelCatalog->getModels() as $modelName => $config) {
-                $models[$modelName] = $name . ' - ' . $modelName;
-            }
-        }
-
         $builder->add($elementFactory->newSelect('type', 'Type', $types, 'The agent type'));
-        $builder->add($elementFactory->newSelect('model', 'Model', $models, 'The selected model'));
+        $builder->add($elementFactory->newInput('model', 'Model', 'The model name'));
         $builder->add($elementFactory->newInput('api_key', 'Password', 'password', 'The API key'));
         $builder->add($elementFactory->newInput('url', 'Url', 'text', 'For Ollama provide an url of the host i.e. http://localhost:11434'));
     }
@@ -136,15 +130,5 @@ class Agent extends ConnectionAbstract implements PingableInterface
         } else {
             return false;
         }
-    }
-
-    private function getModelCatalog(string $type): ModelCatalogInterface
-    {
-        return match ($type) {
-            'anthropic' => new Anthropic\ModelCatalog(),
-            'gemini' => new Gemini\ModelCatalog(),
-            'ollama' => new Ollama\ModelCatalog(),
-            default => new OpenAi\ModelCatalog(),
-        };
     }
 }
