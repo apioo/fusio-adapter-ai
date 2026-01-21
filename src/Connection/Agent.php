@@ -109,7 +109,7 @@ class Agent extends ConnectionAbstract implements PingableInterface
 
         $builder->add($elementFactory->newSelect('type', 'Type', $types, 'The agent type'));
         $builder->add($elementFactory->newInput('model', 'Model', 'The model name'));
-        $builder->add($elementFactory->newInput('api_key', 'Password', 'password', 'The API key'));
+        $builder->add($elementFactory->newInput('api_key', 'API-Key', 'password', 'The API key'));
         $builder->add($elementFactory->newInput('url', 'Url', 'text', 'For Ollama provide an url of the host i.e. http://localhost:11434'));
     }
 
