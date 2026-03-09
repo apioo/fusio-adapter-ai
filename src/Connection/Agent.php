@@ -70,21 +70,10 @@ class Agent extends ConnectionAbstract implements PingableInterface
 
         $type = $config->get('type');
 
-        $needsApiKey = $type !== 'ollama';
-        if ($needsApiKey) {
-            if (empty($apiKey)) {
-                throw new ConfigurationException('Provided no api key');
-            }
-        } else {
-            if (empty($url)) {
-                throw new ConfigurationException('Provided no url');
-            }
-        }
-
         $platform = match ($type) {
             'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
             'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            'ollama' => Ollama\PlatformFactory::create(hostUrl: $url, eventDispatcher: $this->eventDispatcher),
+            'ollama' => Ollama\PlatformFactory::create(endpoint: $url, apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
             default => OpenAi\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
         };
 
