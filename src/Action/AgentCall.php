@@ -29,7 +29,8 @@ use Fusio\Engine\Form\BuilderInterface;
 use Fusio\Engine\Form\ElementFactoryInterface;
 use Fusio\Engine\ParametersInterface;
 use Fusio\Engine\RequestInterface;
-use Fusio\Model\Common\AgentInput;
+use Fusio\Model\Agent\Input;
+use Fusio\Model\Agent\ItemObject;
 use PSX\Http\Environment\HttpResponseInterface;
 use PSX\Http\Exception\BadRequestException;
 
@@ -59,12 +60,21 @@ class AgentCall extends ActionAbstract
             throw new ConfigurationException('No agent provided');
         }
 
+        $structuredOutput = (bool) $configuration->get('structured_output');
+
         $payload = $request->getPayload();
-        if (!$payload instanceof AgentInput) {
+        if (!$payload instanceof Input) {
             throw new BadRequestException('Provided an invalid payload');
         }
 
         $output = $this->sender->send($agent, $payload, $context);
+
+        if ($structuredOutput) {
+            $item = $output->getItem();
+            if ($item instanceof ItemObject) {
+                $output = $item->getPayload();
+            }
+        }
 
         return $this->response->build(200, [], $output);
     }
@@ -72,5 +82,6 @@ class AgentCall extends ActionAbstract
     public function configure(BuilderInterface $builder, ElementFactoryInterface $elementFactory): void
     {
         $builder->add($elementFactory->newAgent('agent', 'Agent', 'The agent which should be invoked'));
+        $builder->add($elementFactory->newCheckbox('structured_output', 'Structured output', 'Indicates whether the structured output of the agent should be returned directly'));
     }
 }
