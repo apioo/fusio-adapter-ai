@@ -60,6 +60,10 @@ class AgentCall extends ActionAbstract
             throw new ConfigurationException('No agent provided');
         }
 
+        if ($context->getUser()->isAnonymous()) {
+            throw new BadRequestException('An LLM agent can only be invoked by an authenticated user');
+        }
+
         $structuredOutput = (bool) $configuration->get('structured_output');
 
         $payload = $request->getPayload();
