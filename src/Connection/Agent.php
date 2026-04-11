@@ -27,7 +27,6 @@ use Fusio\Engine\Exception\ConfigurationException;
 use Fusio\Engine\Form\BuilderInterface;
 use Fusio\Engine\Form\ElementFactoryInterface;
 use Fusio\Engine\ParametersInterface;
-use Psr\EventDispatcher\EventDispatcherInterface;
 use Symfony\AI\Agent\Agent as SymfonyAgent;
 use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Agent\Exception\ExceptionInterface;
@@ -37,10 +36,9 @@ use Symfony\AI\Platform\Bridge\Anthropic;
 use Symfony\AI\Platform\Bridge\Gemini;
 use Symfony\AI\Platform\Bridge\Ollama;
 use Symfony\AI\Platform\Bridge\OpenAi;
-use Symfony\AI\Platform\Capability;
 use Symfony\AI\Platform\Message\Message;
 use Symfony\AI\Platform\Message\MessageBag;
-use Symfony\AI\Platform\ModelCatalog\ModelCatalogInterface;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
  * Agent
@@ -75,7 +73,7 @@ class Agent extends ConnectionAbstract implements PingableInterface
         $platform = match ($type) {
             'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
             'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            'ollama' => Ollama\PlatformFactory::create(endpoint: $url, apiKey: $apiKey, modelCatalog: $this->newOllamaCatalog(), eventDispatcher: $this->eventDispatcher),
+            'ollama' => Ollama\PlatformFactory::create(endpoint: $url, apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
             default => OpenAi\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
         };
 
@@ -121,38 +119,5 @@ class Agent extends ConnectionAbstract implements PingableInterface
         } else {
             return false;
         }
-    }
-
-    private function newOllamaCatalog(): ModelCatalogInterface
-    {
-        return new Ollama\ModelCatalog([
-            'gpt-oss:120b-cloud' => [
-                'class' => Ollama\Ollama::class,
-                'capabilities' => [
-                    Capability::INPUT_MESSAGES,
-                    Capability::OUTPUT_TEXT,
-                    Capability::OUTPUT_STRUCTURED,
-                    Capability::TOOL_CALLING,
-                ],
-            ],
-            'gpt-oss:20b-cloud' => [
-                'class' => Ollama\Ollama::class,
-                'capabilities' => [
-                    Capability::INPUT_MESSAGES,
-                    Capability::OUTPUT_TEXT,
-                    Capability::OUTPUT_STRUCTURED,
-                    Capability::TOOL_CALLING,
-                ],
-            ],
-            'qwen3-coder:480b-cloud' => [
-                'class' => Ollama\Ollama::class,
-                'capabilities' => [
-                    Capability::INPUT_MESSAGES,
-                    Capability::OUTPUT_TEXT,
-                    Capability::OUTPUT_STRUCTURED,
-                    Capability::TOOL_CALLING,
-                ],
-            ],
-        ]);
     }
 }
