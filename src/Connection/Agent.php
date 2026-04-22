@@ -71,10 +71,10 @@ class Agent extends ConnectionAbstract implements PingableInterface
         $type = $config->get('type');
 
         $platform = match ($type) {
-            'anthropic' => Anthropic\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            'gemini' => Gemini\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            'ollama' => Ollama\PlatformFactory::create(endpoint: $url, apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
-            default => OpenAi\PlatformFactory::create(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            'anthropic' => Anthropic\Factory::createPlatform(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            'gemini' => Gemini\Factory::createPlatform(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            'ollama' => Ollama\Factory::createPlatform(endpoint: $url, apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
+            default => OpenAi\Factory::createPlatform(apiKey: $apiKey, eventDispatcher: $this->eventDispatcher),
         };
 
         $toolbox = $this->tools->resolve();
