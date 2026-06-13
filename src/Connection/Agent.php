@@ -111,7 +111,9 @@ class Agent extends ConnectionAbstract implements PingableInterface
             );
 
             try {
-                $connection->call($messages);
+                $connection->call($messages, [
+                    'tools' => [],
+                ]);
                 return true;
             } catch (ExceptionInterface) {
                 return false;
