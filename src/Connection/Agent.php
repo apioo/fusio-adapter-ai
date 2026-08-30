@@ -30,7 +30,6 @@ use Fusio\Engine\ParametersInterface;
 use Symfony\AI\Agent\Agent as SymfonyAgent;
 use Symfony\AI\Agent\AgentInterface;
 use Symfony\AI\Agent\Exception\ExceptionInterface;
-use Symfony\AI\Agent\Toolbox\AgentProcessor;
 use Symfony\AI\Agent\Toolbox\ToolboxInterface;
 use Symfony\AI\Platform\Bridge\Anthropic;
 use Symfony\AI\Platform\Bridge\Gemini;
@@ -79,9 +78,7 @@ class Agent extends ConnectionAbstract implements PingableInterface
 
         $toolbox = $this->tools->resolve();
         if ($toolbox instanceof ToolboxInterface) {
-            $toolProcessor = new AgentProcessor($toolbox);
-
-            return new SymfonyAgent($platform, $model, inputProcessors: [$toolProcessor], outputProcessors: [$toolProcessor]);
+            return new SymfonyAgent($platform, $model, toolbox: $toolbox);
         } else {
             return new SymfonyAgent($platform, $model);
         }
